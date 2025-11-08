@@ -89,16 +89,16 @@ datasets/
 !datasets/samples/**
 
 # Models and experiment artifacts (large binaries and logs)
-models/
-checkpoints/
-outputs/
-results/temp/
-lightning_logs/
-mlruns/
-wandb/
-tensorboard/
-tb_logs/
-artifacts/
+# models/
+# checkpoints/
+# outputs/
+# results/temp/
+# lightning_logs/
+# mlruns/
+# wandb/
+# tensorboard/
+# tb_logs/
+# artifacts/
 
 # IPython
 profile_default/
