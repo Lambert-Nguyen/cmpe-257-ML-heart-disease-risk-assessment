@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Disease Risk Assessment</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .form-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            color: #444;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .help-text {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: start;
+            gap: 0.25rem;
+        }
+
+        .help-text .material-icons {
+            font-size: 1rem;
+            color: #999;
+        }
+
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .radio-option:hover {
+            border-color: #667eea;
+            background: #f5f7ff;
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 0.75rem;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .radio-option.selected {
+            border-color: #667eea;
+            background: #f5f7ff;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        button {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Result Styles */
+        .result-card {
+            border-left: 5px solid #4CAF50;
+            padding: 2rem;
+            margin-top: 2rem;
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        .result-card.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-icon {
+            font-size: 3rem;
+        }
+
+        .result-title {
+            font-size: 1.75rem;
+            font-weight: 500;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 1rem;
+            color: white;
+            font-weight: 500;
+            transition: width 1s ease;
+        }
+
+        .action-items {
+            background: #f5f7ff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .action-items h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-items ul {
+            list-style: none;
+        }
+
+        .action-items li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .action-items li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .emergency-banner {
+            background: #ff5252;
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .emergency-banner.show {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .disclaimer {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #856404;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem 0.5rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Heart Disease Risk Assessment</h1>
+            <p class="subtitle">Complete this questionnaire to assess your heart disease risk</p>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress"></div>
+            </div>
+
+            <form id="assessmentForm">
+                <!-- Section 1: Basic Information -->
+                <div class="form-section active" data-section="1">
+                    <h2 class="section-title">
+                        <span class="material-icons">person</span>
+                        Basic Information
+                    </h2>
+
+                    <div class="form-group">
+                        <label for="age">What is your age?</label>
+                        <input type="number" id="age" name="age" min="1" max="120" required>
+                        <div class="help-text">
+                            <span class="material-icons">info</span>
+                            <span>Please enter your current age in years</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>What is your biological sex?</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="sex" value="Male" required>
+                                <span>Male</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sex" value="Female">
+                                <span>Female</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Symptoms -->
+                <div class="form-section" data-section="2">
+                    <h2 class="section-title">
+                        <span class="material-icons">favorite</span>
+                        Symptoms
+                    </h2>
+
+                    <div class="form-group">
+                        <label>What type of chest discomfort do you experience, if any?</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="cp" value="typical angina" required>
+                                <span>Pressure/squeezing in chest during activity, relieved by rest</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="cp" value="atypical angina">
+                                <span>Chest discomfort that doesn't follow a clear pattern</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="cp" value="non-anginal">
+                                <span>Sharp or stabbing chest pain, not related to exertion</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="cp" value="asymptomatic">
+                                <span>No chest pain or discomfort</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Do you experience chest pain during exercise or physical activity?</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="exang" value="TRUE" required>
+                                <span>Yes</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="exang" value="FALSE">
+                                <span>No</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Health Metrics -->
+                <div class="form-section" data-section="3">
+                    <h2 class="section-title">
+                        <span class="material-icons">monitor_heart</span>
+                        Health Metrics
+                    </h2>
+
+                    <div class="form-group">
+                        <label for="trestbps">Resting Blood Pressure (Top Number)</label>
+                        <input type="number" id="trestbps" name="trestbps" min="80" max="250">
+                        <div class="help-text">
+                            <span class="material-icons">info</span>
+                            <span>The first number in your blood pressure reading (e.g., 120 from "120/80"). Leave blank if unknown.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="chol">Total Cholesterol (mg/dL)</label>
+                        <input type="number" id="chol" name="chol" min="100" max="600">
+                        <div class="help-text">
+                            <span class="material-icons">info</span>
+                            <span>From a recent blood test. Leave blank if unknown.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Is your fasting blood sugar greater than 120 mg/dL?</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="fbs" value="TRUE" required>
+                                <span>Yes (or I have diabetes)</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="fbs" value="FALSE">
+                                <span>No</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="fbs" value="FALSE">
+                                <span>I don't know</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Heart Tests -->
+                <div class="form-section" data-section="4">
+                    <h2 class="section-title">
+                        <span class="material-icons">ecg</span>
+                        Heart Tests (Optional)
+                    </h2>
+
+                    <div class="form-group">
+                        <label for="thalch">Maximum Heart Rate During Exercise</label>
+                        <input type="number" id="thalch" name="thalch" min="60" max="220">
+                        <div class="help-text">
+                            <span class="material-icons">info</span>
+                            <span>From a stress test. Leave blank if you haven't had this test.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>ECG/EKG Results</label>
+                        <select name="restecg">
+                            <option value="normal">Normal or not tested</option>
+                            <option value="st-t abnormality">Minor irregularities detected</option>
+                            <option value="lv hypertrophy">Heart muscle thickening detected</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="oldpeak">ST Depression (from stress test)</label>
+                        <input type="number" id="oldpeak" name="oldpeak" min="0" max="6" step="0.1" value="0">
+                        <div class="help-text">
+                            <span class="material-icons">info</span>
+                            <span>Leave as 0 if you haven't had a stress test</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>ST Slope (from stress test)</label>
+                        <select name="slope">
+                            <option value="upsloping">Upsloping or not tested</option>
+                            <option value="flat">Flat</option>
+                            <option value="downsloping">Downsloping</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Section 5: Advanced Tests -->
+                <div class="form-section" data-section="5">
+                    <h2 class="section-title">
+                        <span class="material-icons">science</span>
+                        Advanced Tests (Optional)
+                    </h2>
+
+                    <div class="form-group">
+                        <label>Number of Major Blood Vessels with Blockage</label>
+                        <select name="ca">
+                            <option value="0">0 - No blockages or not tested</option>
+                            <option value="1">1 vessel</option>
+                            <option value="2">2 vessels</option>
+                            <option value="3">3 vessels</option>
+                            <option value="4">4 vessels</option>
+                        </select>
+                        <div class="help-text">
+                            <span class="material-icons">info</span>
+                            <span>From cardiac catheterization/angiogram</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Thalassemia/Blood Flow Test Result</label>
+                        <select name="thal">
+                            <option value="normal">Normal or not tested</option>
+                            <option value="fixed defect">Fixed defect (permanent problem)</option>
+                            <option value="reversable defect">Reversible defect (temporary problem)</option>
+                        </select>
+                        <div class="help-text">
+                            <span class="material-icons">info</span>
+                            <span>From nuclear stress test or similar imaging</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="button-group">
+                    <button type="button" class="btn-secondary" id="prevBtn" style="display: none;">
+                        <span class="material-icons">arrow_back</span>
+                        Previous
+                    </button>
+                    <button type="button" class="btn-primary" id="nextBtn">
+                        Next
+                        <span class="material-icons">arrow_forward</span>
+                    </button>
+                    <button type="submit" class="btn-primary" id="submitBtn" style="display: none;">
+                        <span class="material-icons">check_circle</span>
+                        Get Assessment
+                    </button>
+                </div>
+            </form>
+
+            <!-- Loading State -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing your information...</p>
+            </div>
+
+            <!-- Results -->
+            <div class="result-card" id="results">
+                <div class="emergency-banner" id="emergencyBanner">
+                    <span class="material-icons" style="font-size: 2rem;">local_hospital</span>
+                    <div>
+                        <strong>EMERGENCY:</strong> Seek immediate medical attention. Call 911 or go to the nearest emergency room.
+                    </div>
+                </div>
+
+                <div class="result-header">
+                    <span class="material-icons result-icon" id="resultIcon">favorite</span>
+                    <div>
+                        <h2 class="result-title" id="resultTitle">Assessment Complete</h2>
+                        <p id="resultMessage"></p>
+                    </div>
+                </div>
+
+                <div class="confidence-bar">
+                    <div class="confidence-fill" id="confidenceFill">
+                        <span id="confidenceText">0%</span>
+                    </div>
+                </div>
+
+                <div class="action-items">
+                    <h3>
+                        <span class="material-icons">assignment</span>
+                        Recommended Actions
+                    </h3>
+                    <ul id="actionList"></ul>
+                </div>
+
+                <div class="disclaimer">
+                    <strong>Important Disclaimer:</strong> This is a screening tool only and not a medical diagnosis. Always consult with qualified healthcare professionals for medical advice.
+                </div>
+
+                <div class="button-group" style="margin-top: 2rem;">
+                    <button type="button" class="btn-secondary" onclick="location.reload()">
+                        <span class="material-icons">refresh</span>
+                        Start New Assessment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Form navigation
+        let currentSection = 1;
+        const totalSections = 5;
+
+        // Update progress bar
+        function updateProgress() {
+            const progress = (currentSection / totalSections) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+        }
+
+        // Show section
+        function showSection(n) {
+            const sections = document.querySelectorAll('.form-section');
+            sections.forEach(section => section.classList.remove('active'));
+            sections[n - 1].classList.add('active');
+
+            // Update buttons
+            document.getElementById('prevBtn').style.display = n === 1 ? 'none' : 'flex';
+            document.getElementById('nextBtn').style.display = n === totalSections ? 'none' : 'flex';
+            document.getElementById('submitBtn').style.display = n === totalSections ? 'flex' : 'none';
+
+            updateProgress();
+        }
+
+        // Next button
+        document.getElementById('nextBtn').addEventListener('click', function() {
+            if (currentSection < totalSections) {
+                currentSection++;
+                showSection(currentSection);
+            }
+        });
+
+        // Previous button
+        document.getElementById('prevBtn').addEventListener('click', function() {
+            if (currentSection > 1) {
+                currentSection--;
+                showSection(currentSection);
+            }
+        });
+
+        // Radio button styling
+        document.querySelectorAll('.radio-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                radio.checked = true;
+                
+                // Remove selected class from siblings
+                this.parentElement.querySelectorAll('.radio-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+            });
+        });
+
+        // Form submission
+        document.getElementById('assessmentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Collect form data
+            const formData = new FormData(this);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+
+            // Show loading
+            document.getElementById('assessmentForm').style.display = 'none';
+            document.getElementById('loading').classList.add('show');
+
+            // Simulate API call (replace with actual API endpoint)
+            try {
+                // Replace this URL with your actual API endpoint
+                // const response = await fetch('/api/predict', {
+                //     method: 'POST',
+                //     headers: {'Content-Type': 'application/json'},
+                //     body: JSON.stringify(data)
+                // });
+                // const result = await response.json();
+
+                // Simulated response for demonstration
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                const result = simulateAPIResponse(data);
+
+                displayResults(result);
+            } catch (error) {
+                alert('An error occurred. Please try again.');
+                console.error(error);
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+            }
+        });
+
+        // Display results
+        function displayResults(response) {
+            const resultsDiv = document.getElementById('results');
+            const data = response.data;
+
+            // Set colors
+            resultsDiv.style.borderLeftColor = data.display.severity_color;
+
+            // Set title and message
+            document.getElementById('resultTitle').textContent = data.display.title;
+            document.getElementById('resultTitle').style.color = data.display.severity_color;
+            document.getElementById('resultMessage').textContent = data.display.message;
+
+            // Set icon
+            document.getElementById('resultIcon').textContent = data.display.severity_icon;
+            document.getElementById('resultIcon').style.color = data.display.severity_color;
+
+            // Set confidence
+            const confidenceFill = document.getElementById('confidenceFill');
+            const confidenceText = document.getElementById('confidenceText');
+            setTimeout(() => {
+                confidenceFill.style.width = data.display.confidence_bar + '%';
+                confidenceText.textContent = data.display.confidence_display;
+            }, 100);
+
+            // Set action items
+            const actionList = document.getElementById('actionList');
+            actionList.innerHTML = '';
+            data.recommendation.action_items.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                actionList.appendChild(li);
+            });
+
+            // Show emergency banner if critical
+            if (data.prediction.severity_level >= 4) {
+                document.getElementById('emergencyBanner').classList.add('show');
+            }
+
+            // Show results
+            resultsDiv.classList.add('show');
+        }
+
+        // Simulate API response (for demonstration)
+        function simulateAPIResponse(data) {
+            // This is a placeholder - replace with actual API call
+            const age = parseInt(data.age);
+            const hasChestPain = data.cp !== 'asymptomatic';
+            
+            let severity = 0;
+            if (age > 60 && hasChestPain) severity = 2;
+            else if (hasChestPain) severity = 1;
+
+            const severityConfigs = {
+                0: {
+                    title: "Low Risk - Looking Good!",
+                    message: "Based on your information, your heart disease risk appears to be low.",
+                    color: "#4CAF50",
+                    icon: "check_circle",
+                    actions: [
+                        "Maintain your current healthy lifestyle",
+                        "Schedule routine check-ups annually",
+                        "Continue regular exercise",
+                        "Eat a heart-healthy diet"
+                    ]
+                },
+                1: {
+                    title: "Mild Risk Detected",
+                    message: "Your assessment shows some factors that may increase heart disease risk.",
+                    color: "#FFC107",
+                    icon: "info",
+                    actions: [
+                        "Schedule a consultation with your doctor",
+                        "Discuss lifestyle modifications",
+                        "Get a comprehensive blood test",
+                        "Monitor symptoms and track changes"
+                    ]
+                },
+                2: {
+                    title: "Moderate Risk Detected",
+                    message: "Your assessment indicates a moderate level of heart disease risk.",
+                    color: "#FF6B35",
+                    icon: "warning",
+                    actions: [
+                        "Schedule a cardiology consultation within 2-4 weeks",
+                        "Bring this assessment to your appointment",
+                        "Make immediate lifestyle changes",
+                        "Monitor blood pressure daily"
+                    ]
+                }
+            };
+
+            const config = severityConfigs[severity];
+
+            return {
+                success: true,
+                data: {
+                    prediction: {
+                        severity_level: severity,
+                        severity_label: severity === 0 ? "Low Risk" : severity === 1 ? "Mild Risk" : "Moderate Risk",
+                        confidence: 0.75
+                    },
+                    display: {
+                        title: config.title,
+                        message: config.message,
+                        severity_color: config.color,
+                        severity_icon: config.icon,
+                        confidence_display: "75% confident",
+                        confidence_bar: 75
+                    },
+                    recommendation: {
+                        action_items: config.actions
+                    }
+                }
+            };
+        }
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>
