@@ -80,8 +80,6 @@ target/
 .ipynb_checkpoints/
 
 # Data directories (avoid committing large datasets; allow small samples)
-data/raw/
-data/processed/
 data/interim/
 data/external/
 datasets/
